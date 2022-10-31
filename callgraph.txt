@@ -1,0 +1,12 @@
+@startuml
+ org.example.TvChannel->org.example.Blogger : addObserver
+ org.example.NewsPaper->org.example.Blogger : addObserver
+ org.example.MobileSubscriber->org.example.Blogger : addObserver
+ org.example.Blogger->org.example.Blogger : notifyObservers
+ org.example.Blogger->org.example.TvChannel : update
+ org.example.TvChannel->org.example.Blogger : getHeadline
+ org.example.Blogger->org.example.NewsPaper : update
+ org.example.NewsPaper->org.example.Blogger : getHeadline
+ org.example.Blogger->org.example.MobileSubscriber : update
+ org.example.MobileSubscriber->org.example.Blogger : getHeadline
+@enduml

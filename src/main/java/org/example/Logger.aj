@@ -1,34 +1,61 @@
 package org.example;
 
-import org.aspectj.lang.JoinPoint;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Stack;
-import java.util.stream.Collectors;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public aspect Logger {
+    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    Date date = new Date();
+    private int n = 0;
+    static {
+    try {
+        Thread.sleep(10);
+    } catch(InterruptedException e){
+        System.out.println("InterruptedException caught");
+    }
+    try {
+        PrintWriter out = new PrintWriter(new FileWriter("callgraph.txt"));
+        out.println("@startuml");
+        out.close();
+    } catch(IOException e) {}
+    }
 
-    List<JoinPoint> callStack = new ArrayList<>();
-
-    pointcut observerAddition() : (call( * *.*(..))
-        || execution( *.new(..)))
+    pointcut observerAddition() : call( * *.*(..))
             && !within(Logger)
             && !cflow(call(* java.*.*.*(..)));
 
     before() : observerAddition() {
-        if (callStack.size() > 0 ) {
-            System.out.println(" " +
-                    callStack.get(callStack.size()-1).getTarget().getClass().getSimpleName() +
-                    "->" + thisJoinPoint.getTarget().getClass().getSimpleName()  + " : " + thisJoinPoint.getSignature().getName() );
+        try {
+            Thread.sleep(10);
+        } catch(InterruptedException e) {
+            System.out.println("InterruptedException caught");
         }
-        callStack.add(thisJoinPoint);
+        try {
+            PrintWriter out = new PrintWriter(new FileWriter("callgraph.txt", true));
+            if (thisJoinPoint.getThis() != null) {
+                out.println(" " +
+                        thisJoinPoint.getThis().getClass().getName() +
+                        "->" + thisJoinPoint.getTarget().getClass().getName()
+                        + " : " + thisJoinPoint.getSignature().getName() );
+            }
+            out.close();
+        } catch (IOException e) {}
     }
-
-    after() : observerAddition() {
-       if (callStack.get(callStack.size()-1) == thisJoinPoint) {
-           callStack.remove(callStack.size()-1);
-       }
+    // Now that the main method is done...
+    after(): execution(void *.main(String[])) {
+        try {
+            Thread.sleep(10);
+        } catch(InterruptedException e) {
+            System.out.println("InterruptedException caught");
+        }
+        try {
+            PrintWriter out = new PrintWriter(new FileWriter("callgraph.txt", true));
+            out.println("@enduml");
+            out.close();
+        } catch (IOException e) {}
     }
 }
